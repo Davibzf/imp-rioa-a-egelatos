@@ -283,12 +283,11 @@ const deliveryFees = {
 };
 
 // =============================================
-// SISTEMA AUTOMÁTICO COM E-MAIL
+// SISTEMA AUTOMÁTICO APENAS COM E-MAIL
 // =============================================
 
 // Configuração
 const CONFIG = {
-  WHATSAPP_NUMBER: "558591937183",
   STORE_NAME: "Império Açaí & Gelatos",
   EMAIL: "iacaiegelatos@gmail.com"
 };
@@ -382,9 +381,6 @@ function setupEventListeners() {
       }
     });
   });
-
-  // Painel Admin Simplificado
-  document.getElementById('floatingAdminBtn').addEventListener('click', openSimpleAdmin);
 }
 
 // Render Products
@@ -912,29 +908,26 @@ function formatBirthday(e) {
 }
 
 // =============================================
-// SISTEMA DE ENVIO AUTOMÁTICO COM E-MAIL CORRIGIDO
+// SISTEMA DE ENVIO APENAS POR E-MAIL
 // =============================================
 
 // Função principal automática
 function sendAutoOrder(orderData) {
   // 1. Salvar no histórico local
-  saveToLocalAdmin(orderData);
+  saveToLocalHistory(orderData);
   
-  // 2. Enviar para seu WhatsApp
-  sendWhatsAppOrder(orderData);
-  
-  // 3. ENVIAR PARA SEU E-MAIL
+  // 2. ENVIAR PARA SEU E-MAIL
   sendEmailNotification(orderData);
   
-  // 4. Alertas visuais e sonoros
+  // 3. Alertas visuais e sonoros
   playOrderSound();
   showSuccessNotification(orderData);
   
-  // 5. Mostrar confirmação para o cliente
+  // 4. Mostrar confirmação para o cliente
   showOrderConfirmation(orderData);
 }
 
-// Função para enviar e-mail (CORRIGIDA - SEM HTML)
+// Função para enviar e-mail
 function sendEmailNotification(orderData) {
   const templateParams = {
     customer_name: orderData.customerName,
@@ -962,7 +955,7 @@ function sendEmailNotification(orderData) {
     });
 }
 
-// Formatar itens para o e-mail (CORRIGIDA - SEM HTML)
+// Formatar itens para o e-mail
 function formatItemsForEmail(items) {
   if (!items || items.length === 0) return 'Nenhum item no pedido';
 
@@ -988,7 +981,7 @@ function formatItemsForEmail(items) {
   }).join('\n\n');
 }
 
-// Formatar informações de entrega (CORRIGIDA - SEM HTML)
+// Formatar informações de entrega
 function formatDeliveryInfo(orderData) {
   if (orderData.orderType === 'delivery' && orderData.address) {
     return `Endereço: ${orderData.address.street}, ${orderData.address.number}
@@ -999,225 +992,8 @@ Taxa de entrega: R$ ${orderData.deliveryFee.toFixed(2)}`;
   return 'Cliente irá retirar na loja';
 }
 
-// Sistema WhatsApp melhorado
-function sendWhatsAppOrder(orderData) {
-  const message = formatOrderMessage(orderData);
-  const encodedMessage = encodeURIComponent(message);
-  const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodedMessage}`;
-  
-  console.log('🛜 Tentando enviar para WhatsApp...');
-  
-  // Tenta abrir automaticamente
-  const newWindow = window.open(url, '_blank');
-  
-  // Fallback se bloqueado
-  setTimeout(() => {
-    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-      console.log('❌ WhatsApp bloqueado, mostrando fallback');
-      showWhatsAppFallback(url, orderData);
-    } else {
-      console.log('✅ WhatsApp aberto com sucesso');
-    }
-  }, 2000);
-}
-
-function showWhatsAppFallback(url, orderData) {
-  const existing = document.getElementById('whatsappFallback');
-  if (existing) existing.remove();
-  
-  const fallback = document.createElement('div');
-  fallback.id = 'whatsappFallback';
-  fallback.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  `;
-  
-  fallback.innerHTML = `
-    <div style="
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      text-align: center;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    ">
-      <div style="font-size: 60px; margin-bottom: 15px;">📱</div>
-      <h3 style="color: #25D366; margin-bottom: 15px; font-size: 22px;">
-        ENVIAR PEDIDO PARA WHATSAPP
-      </h3>
-      
-      <div style="
-        background: #f0f9ff;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 15px 0;
-        text-align: left;
-      ">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-          <span style="font-weight: bold;">Cliente:</span>
-          <span>${orderData.customerName}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-          <span style="font-weight: bold;">Total:</span>
-          <span style="color: #10b981; font-weight: bold;">R$ ${orderData.total.toFixed(2)}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span style="font-weight: bold;">Itens:</span>
-          <span>${orderData.items.length} produto(s)</span>
-        </div>
-      </div>
-      
-      <p style="color: #666; margin-bottom: 25px; line-height: 1.5;">
-        <strong>Clique no botão verde abaixo</strong> para enviar este pedido para nosso WhatsApp automaticamente!
-      </p>
-      
-      <div style="display: flex; gap: 12px; flex-direction: column;">
-        <a href="${url}" target="_blank" style="
-          background: #25D366;
-          color: white;
-          padding: 16px;
-          border-radius: 10px;
-          text-decoration: none;
-          font-weight: bold;
-          font-size: 16px;
-          text-align: center;
-          display: block;
-        ">
-          ✅ ABRIR WHATSAPP E ENVIAR PEDIDO
-        </a>
-        
-        <button onclick="closeWhatsAppFallback()" style="
-          background: #6b7280;
-          color: white;
-          border: none;
-          padding: 12px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: bold;
-        ">
-          ✗ Fechar (Pedido Salvo no Sistema)
-        </button>
-      </div>
-      
-      <p style="font-size: 12px; color: #999; margin-top: 15px;">
-        Se o WhatsApp não abrir, copie a mensagem e envie manualmente para:<br>
-        <strong>(85) 9193-7183</strong>
-      </p>
-    </div>
-  `;
-  
-  document.body.appendChild(fallback);
-}
-
-function closeWhatsAppFallback() {
-  const fallback = document.getElementById('whatsappFallback');
-  if (fallback) fallback.remove();
-}
-
-// Formatar mensagem do pedido para WhatsApp (CORRIGIDA)
-function formatOrderMessage(orderData) {
-  const itemsText = orderData.items.map(item => {
-    const options = [
-      ...(item.options.step1 || []),
-      ...(item.options.step2 || []),
-      ...(item.options.step3 || []),
-      ...(item.options.step4 || [])
-    ].filter(opt => opt && opt.quantity > 0);
-    
-    let itemText = `🛒 ${item.product.title} - R$ ${item.totalPrice.toFixed(2)}`;
-    if (options.length > 0) {
-      itemText += `\n   ➕ ${options.map(opt => `${opt.name} (${opt.quantity}x)`).join(', ')}`;
-    }
-    if (item.observations) {
-      itemText += `\n   📝 ${item.observations}`;
-    }
-    return itemText;
-  }).join('\n\n');
-
-  return `🎉 *PEDIDO AUTOMÁTICO - ${CONFIG.STORE_NAME}*
-
-📋 *ITENS DO PEDIDO:*
-${itemsText}
-
-👤 *DADOS DO CLIENTE:*
-• Nome: ${orderData.customerName}
-• WhatsApp: ${orderData.customerPhone}
-${orderData.customerBirthday ? `• Aniversário: ${orderData.customerBirthday}` : ''}
-
-${orderData.orderType === 'delivery' ? 
-`📍 *ENTREGA:*
-• Endereço: ${orderData.address.street}, ${orderData.address.number}
-• Bairro: ${getNeighborhoodName(orderData.address.neighborhood)}
-${orderData.address.complement ? `• Complemento: ${orderData.address.complement}` : ''}
-• Taxa de entrega: R$ ${orderData.deliveryFee.toFixed(2)}` : 
-`🏪 *RETIRADA NA LOJA*`}
-
-💰 *VALORES:*
-• Subtotal: R$ ${orderData.subtotal.toFixed(2)}
-${orderData.orderType === 'delivery' ? `• Taxa de entrega: R$ ${orderData.deliveryFee.toFixed(2)}` : ''}
-• *TOTAL: R$ ${orderData.total.toFixed(2)}*
-
-💳 *PAGAMENTO: ${getPaymentMethodName(orderData.paymentMethod)}*
-
-${orderData.observations ? `📌 OBSERVAÇÕES: ${orderData.observations}` : ''}
-
-⏰ *HORÁRIO: ${new Date(orderData.timestamp).toLocaleString('pt-BR')}*
-
-✅ *PEDIDO RECEBIDO AUTOMATICAMENTE*`;
-}
-
-// Notificação de sucesso para o cliente
-function showSuccessNotification(orderData) {
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #10b981;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 10000;
-    max-width: 350px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    animation: slideInRight 0.5s ease;
-    border-left: 5px solid #059669;
-  `;
-  
-  notification.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-      <div style="font-size: 24px;">✅</div>
-      <strong style="font-size: 16px;">Pedido Enviado com Sucesso!</strong>
-    </div>
-    <div style="font-size: 14px; opacity: 0.9;">
-      Seu pedido de <strong>R$ ${orderData.total.toFixed(2)}</strong> foi recebido!<br>
-      Em breve entraremos em contato.
-    </div>
-  `;
-  
-  document.body.appendChild(notification);
-  
-  // Remover após 5 segundos
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.5s ease';
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-      }
-    }, 500);
-  }, 5000);
-}
-
-// Salvar pedido no histórico
-function saveToLocalAdmin(orderData) {
+// Salvar pedido no histórico local
+function saveToLocalHistory(orderData) {
   const orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
   orders.push(orderData);
   localStorage.setItem("orderHistory", JSON.stringify(orders));
@@ -1273,7 +1049,7 @@ function handleSubmitOrder() {
     };
   }
   
-  // ENVIO AUTOMÁTICO - E-MAIL + WHATSAPP
+  // ENVIO AUTOMÁTICO - APENAS E-MAIL
   sendAutoOrder(orderData);
   
   // Limpar carrinho
@@ -1372,7 +1148,6 @@ function closeConfirmationModal() {
 
 function handleNewOrder() {
   closeConfirmationModal();
-  // Opcional: rolar para o topo para ver produtos
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1404,6 +1179,48 @@ function getPaymentMethodName(method) {
     case 'credit': return 'Cartão de Crédito';
     default: return method;
   }
+}
+
+// Notificação de sucesso para o cliente
+function showSuccessNotification(orderData) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10000;
+    max-width: 350px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    animation: slideInRight 0.5s ease;
+    border-left: 5px solid #059669;
+  `;
+  
+  notification.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+      <div style="font-size: 24px;">✅</div>
+      <strong style="font-size: 16px;">Pedido Enviado com Sucesso!</strong>
+    </div>
+    <div style="font-size: 14px; opacity: 0.9;">
+      Seu pedido de <strong>R$ ${orderData.total.toFixed(2)}</strong> foi recebido!<br>
+      Em breve entraremos em contato.
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remover após 5 segundos
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.5s ease';
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 500);
+  }, 5000);
 }
 
 function showNotification(message) {
@@ -1458,53 +1275,4 @@ function closeTermsModal() {
   document.getElementById("termsModal").classList.remove("active");
 }
 
-// Painel Admin Simplificado
-function openSimpleAdmin() {
-  const modal = document.getElementById('simpleAdminModal');
-  const ordersList = document.getElementById('simpleOrdersList');
-  
-  const orders = JSON.parse(localStorage.getItem("orderHistory")) || [];
-  
-  if (orders.length === 0) {
-    ordersList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nenhum pedido recebido ainda</p>';
-  } else {
-    ordersList.innerHTML = orders.reverse().map(order => `
-      <div style="
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
-        background: #f8f9fa;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-          <strong style="color: #8a2be2;">${order.customerName}</strong>
-          <strong style="color: #10b981;">R$ ${order.total.toFixed(2)}</strong>
-        </div>
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-          📞 ${order.customerPhone}
-        </div>
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-          ⏰ ${new Date(order.timestamp).toLocaleString('pt-BR')}
-        </div>
-        <div style="font-size: 12px; color: #666;">
-          ${order.orderType === 'delivery' ? '🚚 Delivery' : '🏪 Retirada'}
-        </div>
-      </div>
-    `).join('');
-  }
-  
-  modal.style.display = 'flex';
-}
-
-function closeSimpleAdmin() {
-  document.getElementById('simpleAdminModal').style.display = 'none';
-}
-
-// Fechar modal clicando fora
-document.getElementById('simpleAdminModal').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeSimpleAdmin();
-  }
-});
-
-console.log('✅ Sistema Automático com E-mail Carregado!');
+console.log('✅ Sistema Carregado - Apenas E-mail!');
