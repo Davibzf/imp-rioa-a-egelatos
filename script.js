@@ -405,7 +405,7 @@ function renderProducts(searchTerm = "") {
         (product) => `
             <div class="product-card">
                 <div class="product-image">
-                    <img src="image/${category}/${product.id}.jpg" alt="${product.title}" 
+                    <img src="${product.image}" alt="${product.title}" 
                          onerror="this.src='images/placeholder.jpg'; this.alt='Imagem não disponível'">
                 </div>
                 <div class="product-body">
