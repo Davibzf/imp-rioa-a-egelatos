@@ -403,7 +403,10 @@ function renderProducts(searchTerm = "") {
       .map(
         (product) => `
             <div class="product-card">
-                <div class="product-image">${category === 'bebidas' ? '🥤' : '🍨'}</div>
+                <div class="product-image">
+                    <img src="images/${category}/${product.id}.jpg" alt="${product.title}" 
+                         onerror="this.src='images/placeholder.jpg'; this.alt='Imagem não disponível'">
+                </div>
                 <div class="product-body">
                     <h3 class="product-title">${product.title}</h3>
                     <p class="product-description">${product.description}</p>
@@ -447,6 +450,17 @@ function openCustomizeModal(productId) {
 
   document.getElementById("modalProductTitle").textContent = currentProduct.title;
   document.getElementById("modalProductDescription").textContent = currentProduct.description;
+
+  // Update product image in modal
+  const modalProductImage = document.getElementById('modalProductImage');
+  if (modalProductImage) {
+    modalProductImage.src = `images/${currentProduct.category}/${currentProduct.id}.jpg`;
+    modalProductImage.alt = currentProduct.title;
+    modalProductImage.onerror = function() {
+      this.src = 'images/placeholder.jpg';
+      this.alt = 'Imagem não disponível';
+    };
+  }
 
   updateStepIndicators();
   renderStep();
