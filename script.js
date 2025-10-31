@@ -912,7 +912,7 @@ function formatBirthday(e) {
 }
 
 // =============================================
-// SISTEMA DE ENVIO AUTOMÁTICO COM E-MAIL
+// SISTEMA DE ENVIO AUTOMÁTICO COM E-MAIL CORRIGIDO
 // =============================================
 
 // Função principal automática
@@ -934,7 +934,7 @@ function sendAutoOrder(orderData) {
   showOrderConfirmation(orderData);
 }
 
-// Função para enviar e-mail
+// Função para enviar e-mail (CORRIGIDA)
 function sendEmailNotification(orderData) {
   const templateParams = {
     customer_name: orderData.customerName,
@@ -951,6 +951,8 @@ function sendEmailNotification(orderData) {
     delivery_info: formatDeliveryInfo(orderData)
   };
 
+  console.log('📤 Enviando e-mail...', templateParams);
+
   // Enviar e-mail usando EmailJS
   emailjs.send(EMAILJS_CONFIG.SERVICE_ID, EMAILJS_CONFIG.TEMPLATE_ID, templateParams)
     .then(function(response) {
@@ -960,44 +962,41 @@ function sendEmailNotification(orderData) {
     });
 }
 
-// Formatar itens para o e-mail
+// Formatar itens para o e-mail (CORRIGIDA)
 function formatItemsForEmail(items) {
+  if (!items || items.length === 0) return 'Nenhum item no pedido';
+
   return items.map(item => {
     const allOptions = [
-      ...item.options.step1,
-      ...item.options.step2,
-      ...item.options.step3,
-      ...item.options.step4,
-    ].filter(opt => opt.quantity > 0);
+      ...(item.options.step1 || []),
+      ...(item.options.step2 || []),
+      ...(item.options.step3 || []),
+      ...(item.options.step4 || [])
+    ].filter(opt => opt && opt.quantity > 0);
 
-    let itemHTML = `
-      <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 5px;">
-        <strong>${item.product.title}</strong> - R$ ${item.totalPrice.toFixed(2)}<br>
-    `;
-
+    let itemText = `• ${item.product.title} - R$ ${item.totalPrice.toFixed(2)}`;
+    
     if (allOptions.length > 0) {
-      itemHTML += `<em>Adicionais: ${allOptions.map(opt => `${opt.name} (${opt.quantity}x)`).join(', ')}</em><br>`;
+      itemText += `\n  ➕ Adicionais: ${allOptions.map(opt => `${opt.name} (${opt.quantity}x)`).join(', ')}`;
     }
-
+    
     if (item.observations) {
-      itemHTML += `<strong>Observações:</strong> ${item.observations}`;
+      itemText += `\n  📝 Observações: ${item.observations}`;
     }
-
-    itemHTML += `</div>`;
-    return itemHTML;
-  }).join('');
+    
+    return itemText;
+  }).join('\n\n');
 }
 
-// Formatar informações de entrega
+// Formatar informações de entrega (CORRIGIDA)
 function formatDeliveryInfo(orderData) {
-  if (orderData.orderType === 'delivery') {
-    return `
-      <p><strong>Endereço:</strong> ${orderData.address.street}, ${orderData.address.number}</p>
-      <p><strong>Bairro:</strong> ${getNeighborhoodName(orderData.address.neighborhood)}</p>
-      <p><strong>Complemento:</strong> ${orderData.address.complement || 'Não informado'}</p>
-    `;
+  if (orderData.orderType === 'delivery' && orderData.address) {
+    return `Endereço: ${orderData.address.street}, ${orderData.address.number}
+Bairro: ${getNeighborhoodName(orderData.address.neighborhood)}
+Complemento: ${orderData.address.complement || 'Não informado'}
+Taxa de entrega: R$ ${orderData.deliveryFee.toFixed(2)}`;
   }
-  return '<p>Cliente irá retirar na loja</p>';
+  return 'Cliente irá retirar na loja';
 }
 
 // Sistema WhatsApp melhorado
@@ -1123,15 +1122,15 @@ function closeWhatsAppFallback() {
   if (fallback) fallback.remove();
 }
 
-// Formatar mensagem do pedido
+// Formatar mensagem do pedido para WhatsApp (CORRIGIDA)
 function formatOrderMessage(orderData) {
   const itemsText = orderData.items.map(item => {
     const options = [
-      ...item.options.step1,
-      ...item.options.step2,
-      ...item.options.step3,
-      ...item.options.step4,
-    ].filter(opt => opt.quantity > 0);
+      ...(item.options.step1 || []),
+      ...(item.options.step2 || []),
+      ...(item.options.step3 || []),
+      ...(item.options.step4 || [])
+    ].filter(opt => opt && opt.quantity > 0);
     
     let itemText = `🛒 ${item.product.title} - R$ ${item.totalPrice.toFixed(2)}`;
     if (options.length > 0) {
@@ -1157,7 +1156,8 @@ ${orderData.orderType === 'delivery' ?
 `📍 *ENTREGA:*
 • Endereço: ${orderData.address.street}, ${orderData.address.number}
 • Bairro: ${getNeighborhoodName(orderData.address.neighborhood)}
-${orderData.address.complement ? `• Complemento: ${orderData.address.complement}` : ''}` : 
+${orderData.address.complement ? `• Complemento: ${orderData.address.complement}` : ''}
+• Taxa de entrega: R$ ${orderData.deliveryFee.toFixed(2)}` : 
 `🏪 *RETIRADA NA LOJA*`}
 
 💰 *VALORES:*
