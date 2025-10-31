@@ -105,6 +105,7 @@ const productsData = {
       description: "Escolha até 2 opções entre Açaí e Cremes, 3 adicionais e 1 cobertura",
       price: 10.0,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 2 },
         adicionais: { max: 3 },
@@ -118,6 +119,7 @@ const productsData = {
       description: "Escolha até 2 opções entre Açaí e Cremes, 4 adicionais e 1 cobertura",
       price: 13.0,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 2 },
         adicionais: { max: 4 },
@@ -131,6 +133,7 @@ const productsData = {
       description: "Escolha até 3 opções entre Açaí e Cremes, 5 adicionais e 2 coberturas",
       price: 17.0,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 3 },
         adicionais: { max: 5 },
@@ -144,6 +147,7 @@ const productsData = {
       description: "Escolha até 4 opções entre Açaí e Cremes, 6 adicionais e 2 coberturas",
       price: 21.99,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 4 },
         adicionais: { max: 6 },
@@ -157,6 +161,7 @@ const productsData = {
       description: "Escolha até 5 opções entre Açaí e Cremes, 6 adicionais e 2 coberturas",
       price: 29.99,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 5 },
         adicionais: { max: 6 },
@@ -170,6 +175,7 @@ const productsData = {
       description: "Escolha até 8 opções entre Açaí e Cremes, 8 adicionais e 2 coberturas",
       price: 43.99,
       category: "gelatos",
+        image: "https://imagizer.imageshack.com/img923/2773/H6PnCe.jpg",
       options: {
         "acai-cremes": { max: 8 },
         adicionais: { max: 8 },
