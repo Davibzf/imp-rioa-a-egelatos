@@ -1,3 +1,15 @@
+// =============================================
+// CONFIGURAÇÃO DO EMAILJS
+// =============================================
+const EMAILJS_CONFIG = {
+    SERVICE_ID: "service_wps94ii",
+    TEMPLATE_ID: "template_thp2ab9", 
+    PUBLIC_KEY: "o3gJQLHsHX4NZZNhg"
+};
+
+// Inicializar EmailJS
+emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+
 // Product Data
 const productsData = {
   acai: [
@@ -271,13 +283,14 @@ const deliveryFees = {
 };
 
 // =============================================
-// SISTEMA AUTOMÁTICO SEM REDIRECIONAMENTO
+// SISTEMA AUTOMÁTICO COM E-MAIL
 // =============================================
 
-// Configuração - SEU NÚMERO JÁ ESTÁ AQUI
+// Configuração
 const CONFIG = {
-  WHATSAPP_NUMBER: "558591937183", // Número fornecido: 55 85 9193-7183
-  STORE_NAME: "Império Açaí & Gelatos"
+  WHATSAPP_NUMBER: "558591937183",
+  STORE_NAME: "Império Açaí & Gelatos",
+  EMAIL: "iacaiegelatos@gmail.com"
 };
 
 // State
@@ -899,7 +912,7 @@ function formatBirthday(e) {
 }
 
 // =============================================
-// SISTEMA DE ENVIO AUTOMÁTICO
+// SISTEMA DE ENVIO AUTOMÁTICO COM E-MAIL
 // =============================================
 
 // Função principal automática
@@ -907,37 +920,207 @@ function sendAutoOrder(orderData) {
   // 1. Salvar no histórico local
   saveToLocalAdmin(orderData);
   
-  // 2. Enviar para seu WhatsApp (em background)
-  sendWhatsAppBackground(orderData);
+  // 2. Enviar para seu WhatsApp
+  sendWhatsAppOrder(orderData);
   
-  // 3. Alertas visuais e sonoros
+  // 3. ENVIAR PARA SEU E-MAIL
+  sendEmailNotification(orderData);
+  
+  // 4. Alertas visuais e sonoros
   playOrderSound();
   showSuccessNotification(orderData);
   
-  // 4. Mostrar confirmação para o cliente
+  // 5. Mostrar confirmação para o cliente
   showOrderConfirmation(orderData);
 }
 
-// Envio automático SEM abrir WhatsApp
-function sendWhatsAppBackground(orderData) {
+// Função para enviar e-mail
+function sendEmailNotification(orderData) {
+  const templateParams = {
+    customer_name: orderData.customerName,
+    customer_phone: orderData.customerPhone,
+    customer_birthday: orderData.customerBirthday || 'Não informado',
+    order_type: orderData.orderType === 'delivery' ? '🚚 DELIVERY' : '🏪 RETIRADA NA LOJA',
+    subtotal: orderData.subtotal.toFixed(2),
+    delivery_fee: orderData.deliveryFee.toFixed(2),
+    total: orderData.total.toFixed(2),
+    payment_method: getPaymentMethodName(orderData.paymentMethod),
+    observations: orderData.observations || 'Nenhuma observação',
+    timestamp: new Date(orderData.timestamp).toLocaleString('pt-BR'),
+    items: formatItemsForEmail(orderData.items),
+    delivery_info: formatDeliveryInfo(orderData)
+  };
+
+  // Enviar e-mail usando EmailJS
+  emailjs.send(EMAILJS_CONFIG.SERVICE_ID, EMAILJS_CONFIG.TEMPLATE_ID, templateParams)
+    .then(function(response) {
+      console.log('✅ E-mail enviado com sucesso para iacaiegelatos@gmail.com!', response.status, response.text);
+    }, function(error) {
+      console.log('❌ Falha no envio do e-mail:', error);
+    });
+}
+
+// Formatar itens para o e-mail
+function formatItemsForEmail(items) {
+  return items.map(item => {
+    const allOptions = [
+      ...item.options.step1,
+      ...item.options.step2,
+      ...item.options.step3,
+      ...item.options.step4,
+    ].filter(opt => opt.quantity > 0);
+
+    let itemHTML = `
+      <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 5px;">
+        <strong>${item.product.title}</strong> - R$ ${item.totalPrice.toFixed(2)}<br>
+    `;
+
+    if (allOptions.length > 0) {
+      itemHTML += `<em>Adicionais: ${allOptions.map(opt => `${opt.name} (${opt.quantity}x)`).join(', ')}</em><br>`;
+    }
+
+    if (item.observations) {
+      itemHTML += `<strong>Observações:</strong> ${item.observations}`;
+    }
+
+    itemHTML += `</div>`;
+    return itemHTML;
+  }).join('');
+}
+
+// Formatar informações de entrega
+function formatDeliveryInfo(orderData) {
+  if (orderData.orderType === 'delivery') {
+    return `
+      <p><strong>Endereço:</strong> ${orderData.address.street}, ${orderData.address.number}</p>
+      <p><strong>Bairro:</strong> ${getNeighborhoodName(orderData.address.neighborhood)}</p>
+      <p><strong>Complemento:</strong> ${orderData.address.complement || 'Não informado'}</p>
+    `;
+  }
+  return '<p>Cliente irá retirar na loja</p>';
+}
+
+// Sistema WhatsApp melhorado
+function sendWhatsAppOrder(orderData) {
   const message = formatOrderMessage(orderData);
   const encodedMessage = encodeURIComponent(message);
-  
-  // Método 1: Usando API do WhatsApp (abre em segundo plano)
   const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodedMessage}`;
   
-  // Criar iframe invisível para enviar
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = url;
-  document.body.appendChild(iframe);
+  console.log('🛜 Tentando enviar para WhatsApp...');
   
-  // Remover after um tempo
+  // Tenta abrir automaticamente
+  const newWindow = window.open(url, '_blank');
+  
+  // Fallback se bloqueado
   setTimeout(() => {
-    document.body.removeChild(iframe);
-  }, 1000);
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      console.log('❌ WhatsApp bloqueado, mostrando fallback');
+      showWhatsAppFallback(url, orderData);
+    } else {
+      console.log('✅ WhatsApp aberto com sucesso');
+    }
+  }, 2000);
+}
+
+function showWhatsAppFallback(url, orderData) {
+  const existing = document.getElementById('whatsappFallback');
+  if (existing) existing.remove();
   
-  console.log('📱 Pedido enviado automaticamente para WhatsApp');
+  const fallback = document.createElement('div');
+  fallback.id = 'whatsappFallback';
+  fallback.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  `;
+  
+  fallback.innerHTML = `
+    <div style="
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    ">
+      <div style="font-size: 60px; margin-bottom: 15px;">📱</div>
+      <h3 style="color: #25D366; margin-bottom: 15px; font-size: 22px;">
+        ENVIAR PEDIDO PARA WHATSAPP
+      </h3>
+      
+      <div style="
+        background: #f0f9ff;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        text-align: left;
+      ">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-weight: bold;">Cliente:</span>
+          <span>${orderData.customerName}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-weight: bold;">Total:</span>
+          <span style="color: #10b981; font-weight: bold;">R$ ${orderData.total.toFixed(2)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="font-weight: bold;">Itens:</span>
+          <span>${orderData.items.length} produto(s)</span>
+        </div>
+      </div>
+      
+      <p style="color: #666; margin-bottom: 25px; line-height: 1.5;">
+        <strong>Clique no botão verde abaixo</strong> para enviar este pedido para nosso WhatsApp automaticamente!
+      </p>
+      
+      <div style="display: flex; gap: 12px; flex-direction: column;">
+        <a href="${url}" target="_blank" style="
+          background: #25D366;
+          color: white;
+          padding: 16px;
+          border-radius: 10px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 16px;
+          text-align: center;
+          display: block;
+        ">
+          ✅ ABRIR WHATSAPP E ENVIAR PEDIDO
+        </a>
+        
+        <button onclick="closeWhatsAppFallback()" style="
+          background: #6b7280;
+          color: white;
+          border: none;
+          padding: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+        ">
+          ✗ Fechar (Pedido Salvo no Sistema)
+        </button>
+      </div>
+      
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">
+        Se o WhatsApp não abrir, copie a mensagem e envie manualmente para:<br>
+        <strong>(85) 9193-7183</strong>
+      </p>
+    </div>
+  `;
+  
+  document.body.appendChild(fallback);
+}
+
+function closeWhatsAppFallback() {
+  const fallback = document.getElementById('whatsappFallback');
+  if (fallback) fallback.remove();
 }
 
 // Formatar mensagem do pedido
@@ -1090,7 +1273,7 @@ function handleSubmitOrder() {
     };
   }
   
-  // ENVIO AUTOMÁTICO - SEM REDIRECIONAMENTO
+  // ENVIO AUTOMÁTICO - E-MAIL + WHATSAPP
   sendAutoOrder(orderData);
   
   // Limpar carrinho
@@ -1324,4 +1507,4 @@ document.getElementById('simpleAdminModal').addEventListener('click', function(e
   }
 });
 
-console.log('✅ Sistema Automático SEM Redirecionamento Carregado!');
+console.log('✅ Sistema Automático com E-mail Carregado!');
