@@ -404,7 +404,7 @@ function renderProducts(searchTerm = "") {
         (product) => `
             <div class="product-card">
                 <div class="product-image">
-                    <img src="images/${category}/${product.id}.jpg" alt="${product.title}" 
+                    <img src="https://imagizer.imageshack.com/img922/9431/uJruSs.jpg/${category}/${product.id}.jpg" alt="${product.title}" 
                          onerror="this.src='images/placeholder.jpg'; this.alt='Imagem não disponível'">
                 </div>
                 <div class="product-body">
