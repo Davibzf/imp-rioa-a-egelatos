@@ -33,6 +33,7 @@ const productsData = {
       description: "Escolha até 2 opções entre Açaí e Cremes, 4 adicionais e 1 cobertura",
       price: 13.0,
       category: "acai",
+        image: "https://imagizer.imageshack.com/img923/4333/mQGLZd.jpg",
       options: {
         "acai-cremes": { max: 2 },
         adicionais: { max: 4 },
@@ -46,6 +47,7 @@ const productsData = {
       description: "Escolha até 3 opções entre Açaí e Cremes, 5 adicionais e 2 coberturas",
       price: 17.0,
       category: "acai",
+         image: "https://imagizer.imageshack.com/img923/3498/iTA7DH.jpg",
       options: {
         "acai-cremes": { max: 3 },
         adicionais: { max: 5 },
@@ -59,6 +61,7 @@ const productsData = {
       description: "Escolha até 4 opções entre Açaí e Cremes, 6 adicionais e 2 coberturas",
       price: 21.99,
       category: "acai",
+         image: "https://imagizer.imageshack.com/img923/237/iejul7.jpg",
       options: {
         "acai-cremes": { max: 4 },
         adicionais: { max: 6 },
@@ -72,6 +75,7 @@ const productsData = {
       description: "Escolha até 5 opções entre Açaí e Cremes, 6 adicionais e 2 coberturas",
       price: 30.0,
       category: "acai",
+        image: "https://imagizer.imageshack.com/img922/5643/MqOxFK.jpg",
       options: {
         "acai-cremes": { max: 5 },
         adicionais: { max: 6 },
@@ -85,6 +89,7 @@ const productsData = {
       description: "Escolha até 8 opções entre Açaí e Cremes, 8 adicionais e 2 coberturas",
       price: 43.99,
       category: "acai",
+        image: "https://imagizer.imageshack.com/img924/4322/qK8SNb.jpg",
       options: {
         "acai-cremes": { max: 8 },
         adicionais: { max: 8 },
