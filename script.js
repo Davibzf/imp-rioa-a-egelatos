@@ -19,6 +19,7 @@ const productsData = {
       description: "Escolha até 2 opções entre Açaí e Cremes, 3 adicionais e 1 cobertura",
       price: 10.0,
       category: "acai",
+         image: "https://imagizer.imageshack.com/img922/9431/uJruSs.jpg",
       options: {
         "acai-cremes": { max: 2 },
         adicionais: { max: 3 },
