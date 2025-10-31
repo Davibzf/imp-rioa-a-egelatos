@@ -934,7 +934,7 @@ function sendAutoOrder(orderData) {
   showOrderConfirmation(orderData);
 }
 
-// Função para enviar e-mail (CORRIGIDA)
+// Função para enviar e-mail (CORRIGIDA - SEM HTML)
 function sendEmailNotification(orderData) {
   const templateParams = {
     customer_name: orderData.customerName,
@@ -962,7 +962,7 @@ function sendEmailNotification(orderData) {
     });
 }
 
-// Formatar itens para o e-mail (CORRIGIDA)
+// Formatar itens para o e-mail (CORRIGIDA - SEM HTML)
 function formatItemsForEmail(items) {
   if (!items || items.length === 0) return 'Nenhum item no pedido';
 
@@ -988,7 +988,7 @@ function formatItemsForEmail(items) {
   }).join('\n\n');
 }
 
-// Formatar informações de entrega (CORRIGIDA)
+// Formatar informações de entrega (CORRIGIDA - SEM HTML)
 function formatDeliveryInfo(orderData) {
   if (orderData.orderType === 'delivery' && orderData.address) {
     return `Endereço: ${orderData.address.street}, ${orderData.address.number}
