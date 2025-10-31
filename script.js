@@ -185,12 +185,12 @@ const productsData = {
     },
   ],
   bebidas: [
-    { id: 13, title: "Água com gás", description: "Refrescante água com gás", price: 3.0, category: "bebidas" },
-    { id: 14, title: "Fanta laranja lata", description: "350 ml", price: 5.0, category: "bebidas" },
-    { id: 15, title: "Guaraná Antártica lata", description: "350 ml", price: 5.0, category: "bebidas" },
-    { id: 16, title: "Coca lata zero", description: "350 ml", price: 5.0, category: "bebidas" },
-    { id: 17, title: "Coca lata", description: "350 ml", price: 5.0, category: "bebidas" },
-    { id: 18, title: "ÁGUA 500 ML", description: "Água mineral 500ml", price: 3.0, category: "bebidas" },
+    { id: 13, title: "Água com gás", description: "Refrescante água com gás", price: 3.0,  image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
+    { id: 14, title: "Fanta laranja lata", description: "350 ml", price: 5.0, image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
+    { id: 15, title: "Guaraná Antártica lata", description: "350 ml", price: 5.0, image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
+    { id: 16, title: "Coca lata zero", description: "350 ml", price: 5.0, image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
+    { id: 17, title: "Coca lata", description: "350 ml", price: 5.0, image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
+    { id: 18, title: "ÁGUA 500 ML", description: "Água mineral 500ml", price: 3.0, image: "https://imagizer.imageshack.com/img923/9484/x869co.png", category: "bebidas" },
   ],
 };
 
